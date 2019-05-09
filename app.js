@@ -51,7 +51,7 @@ app.get("/createmembertable", (req, res) => {
 });
 
 // Create table
-app.get("/createrewarstable", (req, res) => {
+app.get("/createrewardtable", (req, res) => {
   let sql =
     "CREATE TABLE reward (reward_name VARCHAR(20) NOT NULL PRIMARY KEY)";
   db.query(sql, (err, result) => {
@@ -64,7 +64,7 @@ app.get("/createrewarstable", (req, res) => {
 // Create table
 app.get("/creatememrewtable", (req, res) => {
   let sql =
-    "CREATE TABLE member_reward (member_id INT NOT NULL,reward_name VARCHAR(20) NOT NULL,PRIMARY KEY(member_id, reward_name))";
+    "CREATE TABLE member_reward (id int NOT NULL AUTO_INCREMENT,member_id INT NOT NULL,reward_name VARCHAR(20) NOT NULL,PRIMARY KEY (id),FOREIGN KEY (member_id) REFERENCES member(id),FOREIGN KEY (reward_name) REFERENCES reward(reward_name));";
   db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
@@ -72,16 +72,7 @@ app.get("/creatememrewtable", (req, res) => {
   });
 });
 
-// Insert post 1
-app.get("/addpost1", (req, res) => {
-  let post = { title: "Post One", body: "This is post number one" };
-  let sql = "INSERT INTO posts SET ?";
-  let query = db.query(sql, post, (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    res.send("Post 1 added...");
-  });
-});
+//////////////////////////////////////////////////////////////////////////////////////////
 
 // Insert member
 app.post("/addmember", (req, res) => {
@@ -101,7 +92,7 @@ app.post("/addreward", (req, res) => {
   var params = req.body;
   console.log("Params: ", req.body);
   //res.send(params);
-  let post = { reward_name: "FLYBUYS" };
+  let post = { reward_name: req.body.name };
   let sql = "INSERT INTO reward SET ?";
   //var values = [2, "member_2"];
 
@@ -120,7 +111,10 @@ app.post("/addrewardtomember", (req, res) => {
   var params = req.body;
   console.log("Params: ", req.body);
   //res.send(params);
-  let post = { member_id: 100, reward_name: "FLYBUYS" };
+  let post = {
+    member_id: req.body.member_id,
+    reward_name: req.body.reward_name
+  };
   let sql = "INSERT INTO member_reward SET ?";
   //var values = [2, "member_2"];
 
@@ -128,6 +122,21 @@ app.post("/addrewardtomember", (req, res) => {
     if (err) throw err;
     console.log(result);
     res.send(result);
+  });
+});
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+// Select posts
+app.get("/member/:id", (req, res) => {
+  let sql = `SELECT member_reward.member_id, member.name, member_reward.reward_name FROM member_reward INNER JOIN member ON member_reward.member_id=member.id WHERE member_id = ${
+    req.params.id
+  }`;
+  //let post = parseInt(req.params.id);
+  db.query(sql, (err, results) => {
+    if (err) throw err;
+    console.log(results);
+    res.status(200).send(results);
   });
 });
 
