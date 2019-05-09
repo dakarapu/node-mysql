@@ -127,7 +127,7 @@ app.post("/addrewardtomember", (req, res) => {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-// Select posts
+// Select members
 app.get("/member/:id", (req, res) => {
   let sql = `SELECT member_reward.member_id, member.name, member_reward.reward_name FROM member_reward INNER JOIN member ON member_reward.member_id=member.id WHERE member_id = ${
     req.params.id
@@ -139,6 +139,24 @@ app.get("/member/:id", (req, res) => {
     res.status(200).send(results);
   });
 });
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+// Delete members
+app.delete("/member/:id", (req, res) => {
+  let sql = `DELETE member_reward, member
+  FROM member_reward 
+  INNER JOIN member ON member_reward.member_id=member.id
+  WHERE member_id = ${req.params.id}`;
+  //let post = parseInt(req.params.id);
+  db.query(sql, (err, results) => {
+    if (err) throw err;
+    console.log(results);
+    res.status(200).send(results);
+  });
+});
+
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 // Select posts
 app.get("/getposts", (req, res) => {
